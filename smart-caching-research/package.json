@@ -1,0 +1,12 @@
+{
+  "name": "smart-caching-research",
+  "private": true,
+  "scripts": {
+    "install-all": "cd backend && composer install && cd ../frontend-version-a && npm install --legacy-peer-deps && cd ../frontend-version-b && npm install --legacy-peer-deps && cd ../frontend-version-c && npm install --legacy-peer-deps",
+    "db-setup": "cd backend && php artisan key:generate && php artisan migrate:fresh --seed",
+    "start-backend": "cd backend && php artisan serve",
+    "start-a": "cd frontend-version-a && npm run dev",
+    "start-b": "cd frontend-version-b && npm run dev",
+    "start-c": "cd frontend-version-c && npm run dev"
+  }
+}
