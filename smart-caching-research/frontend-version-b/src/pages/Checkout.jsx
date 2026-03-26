@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { queueAction } from '../utils/offlineQueue';
 
 const Checkout = () => {
   const { cart, cartTotal, clearCart } = useCart();
@@ -27,7 +28,14 @@ const Checkout = () => {
       setSuccess(true);
       clearCart();
     } catch (err) {
-      setError(err.response?.data?.message || 'Checkout failed. Please try again.');
+      if (!navigator.onLine) {
+        await queueAction('CHECKOUT', orderData);
+        setSuccess(true);
+        clearCart();
+        alert('Offline: Your order has been queued and will be sent when you are back online.');
+      } else {
+        setError(err.response?.data?.message || 'Checkout failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
