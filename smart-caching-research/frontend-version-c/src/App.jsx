@@ -31,7 +31,10 @@ function App() {
 
     // Subscriptions
     const unsubNetwork = subscribeToNetworkChanges(updateStrategy);
-    const unsubBattery = subscribeToBatteryChanges(updateStrategy);
+    let unsubBattery;
+    subscribeToBatteryChanges(updateStrategy).then(unsub => {
+      unsubBattery = unsub;
+    });
 
     // Initial check
     updateStrategy();
@@ -57,7 +60,7 @@ function App() {
 
     return () => {
       unsubNetwork();
-      unsubBattery();
+      if (unsubBattery) unsubBattery();
       window.removeEventListener('online', handleOnline);
     };
   }, [version]);

@@ -24,8 +24,15 @@ const Layout = () => {
 
     update();
     const unsubN = subscribeToNetworkChanges(update);
-    const unsubB = subscribeToBatteryChanges(update);
-    return () => { unsubN(); unsubB(); };
+    let unsubB;
+    subscribeToBatteryChanges(update).then(unsub => {
+      unsubB = unsub;
+    });
+
+    return () => { 
+      unsubN(); 
+      if (unsubB) unsubB(); 
+    };
   }, []);
 
   const versionInfo = {
