@@ -1,17 +1,8 @@
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { NetworkFirst, CacheFirst } from 'workbox-strategies';
+import { StaleWhileRevalidate } from 'workbox-strategies';
 
 precacheAndRoute(self.__WB_MANIFEST);
-
-let strategy = 'network-first'; // Global state for current strategy
-
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'UPDATE_STRATEGY') {
-    strategy = event.data.strategy;
-    console.log('[SW-Research] Strategy updated to:', strategy);
-  }
-});
 
 // Research Plugin for Data Age Tracking
 const researchPlugin = {
@@ -28,7 +19,6 @@ const researchPlugin = {
     if (cachedResponse) {
       const newHeaders = new Headers(cachedResponse.headers);
       newHeaders.set('X-Cache-Source', 'cache');
-      // X-Cache-At is already in headers from cacheWillUpdate
       return new Response(cachedResponse.body, {
         status: cachedResponse.status,
         statusText: cachedResponse.statusText,
@@ -39,20 +29,18 @@ const researchPlugin = {
   }
 };
 
-// Cache API calls based on the current adaptive strategy
+// Fixed Stale-While-Revalidate strategy with Research Plugin
 registerRoute(
   ({ url }) => url.origin === 'http://localhost:8000',
   async ({ request, url, event }) => {
-    let result;
-    const options = { cacheName: 'api-adaptive-cache', plugins: [researchPlugin] };
+    const strategy = new StaleWhileRevalidate({
+      cacheName: 'api-cache',
+      plugins: [researchPlugin]
+    });
     
-    if (strategy === 'cache-first') {
-      result = await new CacheFirst(options).handle({ event, request });
-    } else {
-      result = await new NetworkFirst(options).handle({ event, request });
-    }
+    const result = await strategy.handle({ event, request });
 
-    // Add headers to network responses (cache responses already have them from plugin)
+    // Add headers to network responses
     const responseHeaders = new Headers(result.headers);
     if (!responseHeaders.has('X-Cache-Source')) {
       responseHeaders.set('X-Cache-Source', 'network');

@@ -35,7 +35,12 @@ npm run dev -- --port 5175
 ## Research Evaluation Steps
 1. **Network Throttling**: Use Chrome DevTools to set network to "Fast 3G". Observe the status badge switch to `Cache-First`.
 2. **Battery Simulation**: Use DevTools -> More Tools -> Sensors to simulate < 20% battery. Observe strategy switch.
-3. **Offline Mode**: 
+3. **Data Age Tracking**: 
+    - Click any product or stay on the Home page.
+    - First load: `Source: network` and `Data Age: 0.00 min`.
+    - Refresh: `Source: cache` and `Data Age: X.XX min` (increments based on when it was first cached).
+    - Checks: Verify console logs start with `[RESEARCH_DATA_AGE]`.
+4. **Offline Mode**: 
     - Go offline.
     - Search for products (should load from cache).
     - Add to cart and "Checkout".

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
+import DataAgeBadge from '../components/DataAgeBadge';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -31,6 +32,7 @@ const ProductDetail = () => {
   return (
     <div className="detail-container">
       <button onClick={() => navigate(-1)} className="back-btn">← Back</button>
+      <DataAgeBadge source="network" ageMinutes="N/A" />
       <div className="detail-layout">
         <img src={product.image_url} alt={product.name} className="detail-img" />
         <div className="detail-info">
