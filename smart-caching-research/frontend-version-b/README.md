@@ -29,9 +29,15 @@ npm run dev -- --port 5174
 *Port 5174 is reserved for the fixed PWA version.*
 
 ## Research Observations
-- **Offline Behavior**: The product list should still appear if previously loaded.
+- **First-Refresh Caching Verification**:
+    - Clear site data (DevTools > Application > Clear storage).
+    - Open the app online. The page will auto-reload once the SW takes control.
+    - Refresh the page *once*.
+    - Open Chrome DevTools > Application > Cache Storage.
+    - Confirm `api-products-cache` already contains the product list data.
+    - Switch DevTools Network to Offline.
+    - Refresh again; the cached product data must display immediately.
 - **Data Age Tracking**: 
-    - First load: `Source: network` and `Data Age: 0.00 min`.
-    - Refresh: `Source: cache`. Age increments based on the first visit.
-    - Note: This version uses `Stale-While-Revalidate`. You may see it briefly show "Source: cache" and then update to "Source: network" once the background fetch completes.
-- **Performance Logs**: Check console for `[RESEARCH_DATA_AGE]` metrics.
+    - The UI displays exactly how old the cached data is.
+    - Note: This version uses `Stale-While-Revalidate`. You may see it briefly show "Source: cache" and then update to fresh network data once the background fetch completes.
+- **Performance Logs**: Check console for `[SW-Research]` and `[RESEARCH_DATA_AGE]` metrics.

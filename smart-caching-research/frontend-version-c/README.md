@@ -40,9 +40,13 @@ npm run dev -- --port 5175
     - First load: `Source: network` and `Data Age: 0.00 min`.
     - Refresh: `Source: cache` and `Data Age: X.XX min` (increments based on when it was first cached).
     - Checks: Verify console logs start with `[RESEARCH_DATA_AGE]`.
-4. **Offline Mode**: 
-    - Go offline.
-    - Search for products (should load from cache).
-    - Add to cart and "Checkout".
-    - Go back online.
-    - Check Laravel logs (`storage/logs/laravel.log`) or the database to see the synced order.
+4. **First-Refresh Caching Verification**: 
+    - Clear site data (DevTools > Application > Clear storage).
+    - Open the app online. The page will auto-reload once the SW confidently takes control.
+    - Refresh the page *once*.
+    - Open Chrome DevTools > Application > Cache Storage.
+    - Confirm `api-products-cache` already contains the product list data.
+    - Switch DevTools Network to Offline.
+    - Refresh again; the cached product data must display immediately.
+    - Test the offline queue by adding a product to the cart and clicking "Checkout".
+    - Go back online and check `storage/logs/laravel.log` to see the synced order.
