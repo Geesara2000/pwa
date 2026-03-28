@@ -8,17 +8,25 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dataInfo, setDataInfo] = useState({ source: 'network', ageMinutes: '0.00' });
+  const [dataInfo, setDataInfo] = useState({ data: [], source: 'network', ageMinutes: '0.00', cachedAt: null });
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/products');
         const info = calculateDataAge(response.headers);
-        setDataInfo(info);
-        logDataAge('/api/products', info);
         
-        setProducts(response.data);
+        const structuredData = {
+          data: response.data,
+          source: info.source,
+          ageMinutes: info.ageMinutes,
+          cachedAt: info.cachedAt || null
+        };
+        
+        setDataInfo(structuredData);
+        logDataAge('/api/products', structuredData);
+        
+        setProducts(structuredData.data);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch products. Is the backend running?');
@@ -33,7 +41,11 @@ const Home = () => {
 
   return (
     <div className="home-content">
-      <DataAgeBadge source={dataInfo.source} ageMinutes={dataInfo.ageMinutes} />
+      <DataAgeBadge 
+        source={dataInfo.source} 
+        ageMinutes={dataInfo.ageMinutes} 
+        cachedAt={dataInfo.cachedAt} 
+      />
       <div className="product-grid">
       {products.map(product => (
         <Link to={`/product/${product.id}`} key={product.id} className="product-card">

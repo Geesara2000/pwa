@@ -13,17 +13,25 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dataInfo, setDataInfo] = useState({ source: 'network', ageMinutes: '0.00' });
+  const [dataInfo, setDataInfo] = useState({ data: null, source: 'network', ageMinutes: '0.00', cachedAt: null });
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/api/products/${id}`);
         const info = calculateDataAge(response.headers);
-        setDataInfo(info);
-        logDataAge(`/api/products/${id}`, info);
+        
+        const structuredData = {
+          data: response.data,
+          source: info.source,
+          ageMinutes: info.ageMinutes,
+          cachedAt: info.cachedAt || null
+        };
+        
+        setDataInfo(structuredData);
+        logDataAge(`/api/products/${id}`, structuredData);
 
-        setProduct(response.data);
+        setProduct(structuredData.data);
         setLoading(false);
       } catch (err) {
         setError('Product not found or API error.');
@@ -58,7 +66,11 @@ const ProductDetail = () => {
   return (
     <div className="detail-container">
       <button onClick={() => navigate(-1)} className="back-btn">← Back</button>
-      <DataAgeBadge source={dataInfo.source} ageMinutes={dataInfo.ageMinutes} />
+      <DataAgeBadge 
+        source={dataInfo.source} 
+        ageMinutes={dataInfo.ageMinutes} 
+        cachedAt={dataInfo.cachedAt} 
+      />
       <div className="detail-layout">
         <img src={product.image_url} alt={product.name} className="detail-img" />
         <div className="detail-info">

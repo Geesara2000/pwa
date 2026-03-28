@@ -1,8 +1,8 @@
 import React from 'react';
 
-const DataAgeBadge = ({ source, ageMinutes }) => {
+const DataAgeBadge = ({ source, ageMinutes, cachedAt }) => {
   const isNetwork = source === 'network';
-  const displayAge = ageMinutes === 'N/A' ? 'N/A' : `${ageMinutes} min`;
+  const displayAge = ageMinutes === 'N/A' || ageMinutes == null ? 'N/A' : `${ageMinutes} min`;
 
   const badgeStyle = {
     display: 'inline-flex',
@@ -27,7 +27,7 @@ const DataAgeBadge = ({ source, ageMinutes }) => {
   };
 
   return (
-    <div className="research-data-badge" style={badgeStyle}>
+    <div className="research-data-badge" style={badgeStyle} data-source={source} data-age={ageMinutes} data-cached={cachedAt}>
       <span style={dotStyle}></span>
       <span style={{ marginRight: '10px' }}>Source: {source}</span>
       <span>Data Age: {displayAge}</span>
