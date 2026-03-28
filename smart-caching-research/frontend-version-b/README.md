@@ -30,4 +30,8 @@ npm run dev -- --port 5174
 
 ## Research Observations
 - **Offline Behavior**: The product list should still appear if previously loaded.
-- **Data Freshness**: You may notice prices or stock levels update slightly after a page refresh as the background sync completes.
+- **Data Age Tracking**: 
+    - First load: `Source: network` and `Data Age: 0.00 min`.
+    - Refresh: `Source: cache`. Age increments based on the first visit.
+    - Note: This version uses `Stale-While-Revalidate`. You may see it briefly show "Source: cache" and then update to "Source: network" once the background fetch completes.
+- **Performance Logs**: Check console for `[RESEARCH_DATA_AGE]` metrics.

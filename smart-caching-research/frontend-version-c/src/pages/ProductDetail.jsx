@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { queueAction } from '../utils/offlineQueue';
+import DataAgeBadge from '../components/DataAgeBadge';
+import { calculateDataAge, logDataAge } from '../utils/dataAge';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -11,11 +13,16 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dataInfo, setDataInfo] = useState({ source: 'network', ageMinutes: '0.00' });
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/api/products/${id}`);
+        const info = calculateDataAge(response.headers);
+        setDataInfo(info);
+        logDataAge(`/api/products/${id}`, info);
+
         setProduct(response.data);
         setLoading(false);
       } catch (err) {
@@ -52,6 +59,7 @@ const ProductDetail = () => {
   return (
     <div className="detail-container">
       <button onClick={() => navigate(-1)} className="back-btn">← Back</button>
+      <DataAgeBadge source={dataInfo.source} ageMinutes={dataInfo.ageMinutes} />
       <div className="detail-layout">
         <img src={product.image_url} alt={product.name} className="detail-img" />
         <div className="detail-info">

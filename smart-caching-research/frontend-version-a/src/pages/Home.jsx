@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import DataAgeBadge from '../components/DataAgeBadge';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -25,7 +26,9 @@ const Home = () => {
   if (error) return <div className="error">{error}</div>;
 
   return (
-    <div className="product-grid">
+    <div className="home-content">
+      <DataAgeBadge source="network" ageMinutes="N/A" />
+      <div className="product-grid">
       {products.map(product => (
         <Link to={`/product/${product.id}`} key={product.id} className="product-card">
           <img src={product.image_url} alt={product.name} />
@@ -41,6 +44,7 @@ const Home = () => {
           </div>
         </Link>
       ))}
+      </div>
     </div>
   );
 };
