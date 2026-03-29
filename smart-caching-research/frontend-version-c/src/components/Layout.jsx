@@ -1,45 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { getNetworkInfo, subscribeToNetworkChanges } from '../utils/networkInfo';
-import { getBatteryInfo, subscribeToBatteryChanges } from '../utils/batteryInfo';
-import { determineStrategy } from '../utils/adaptiveCaching';
+import { useNetwork } from '../context/NetworkContext';
 
 const Layout = () => {
   const { cartCount } = useCart();
+  const { netInfo, battery, strategy } = useNetwork();
   const version = import.meta.env.VITE_APP_VERSION || 'A';
-  
-  const [network, setNetwork] = useState(getNetworkInfo());
-  const [battery, setBattery] = useState({ level: 1.0, charging: true });
-  const [strategy, setStrategy] = useState('network-first');
-
-  useEffect(() => {
-    const update = async () => {
-      const b = await getBatteryInfo();
-      const n = getNetworkInfo();
-      setNetwork(n);
-      setBattery(b);
-      setStrategy(determineStrategy(n, b));
-    };
-
-    update();
-    const unsubN = subscribeToNetworkChanges(update);
-    let unsubB;
-    subscribeToBatteryChanges(update).then(unsub => {
-      unsubB = unsub;
-    });
-
-    return () => { 
-      unsubN(); 
-      if (unsubB) unsubB(); 
-    };
-  }, []);
 
   const versionInfo = {
     A: { name: 'Traditional', strategy: 'None (Network Only)', class: 'version-a' },
     B: { name: 'Fixed PWA', strategy: 'Stale-While-Revalidate', class: 'version-b' },
     C: { name: 'Adaptive PWA', strategy: strategy, class: 'version-c' }
   }[version];
+
+  // Build a human-readable network label (never trust a stale snapshot)
+  const networkLabel = netInfo.online
+    ? `Online (${netInfo.effectiveType})`
+    : 'Offline';
 
   return (
     <div className="app-container">
@@ -67,7 +45,7 @@ const Layout = () => {
 
       <div className="status-indicator">
         <div className="status-item">
-          <strong>Network:</strong> {network.online ? `Online (${network.effectiveType})` : 'Offline'}
+          <strong>Network:</strong> {networkLabel}
         </div>
         <div className="status-item">
           <strong>Battery:</strong> {Math.round(battery.level * 100)}% {battery.charging ? '(Charging)' : ''}
