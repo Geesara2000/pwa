@@ -1,10 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const Layout = () => {
   const { cartCount } = useCart();
   const version = import.meta.env.VITE_APP_VERSION || 'A';
+
+  // Reactive online/offline state — navigator.onLine alone won't trigger re-renders
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log('[Research-B] Network status changed: Online');
+      setIsOnline(true);
+    };
+    const handleOffline = () => {
+      console.log('[Research-B] Network status changed: Offline');
+      setIsOnline(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const versionInfo = {
     A: { name: 'Traditional', strategy: 'None (Network Only)', class: 'version-a' },
@@ -38,7 +60,7 @@ const Layout = () => {
 
       <div className="status-indicator">
         <div className="status-item">
-          <strong>Network:</strong> {navigator.onLine ? 'Online' : 'Offline'}
+          <strong>Network:</strong> {isOnline ? 'Online' : 'Offline'}
         </div>
         <div className="status-item">
           <strong>Cache Strategy:</strong> {versionInfo.strategy}
